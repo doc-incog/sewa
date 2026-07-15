@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
+import ReviewForm from "@/components/ReviewForm";
 import { useAuth } from "@/hooks/useAuth";
 import { Booking } from "../../../../shared/types";
 import toast from "react-hot-toast";
@@ -12,6 +13,8 @@ export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("");
+  const [reviewedBookings, setReviewedBookings] = useState<Set<string>>(new Set());
+  const [showReviewFor, setShowReviewFor] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBookings();
@@ -24,7 +27,27 @@ export default function BookingsPage() {
       if (filter) params.status = filter;
       const endpoint = user?.role === "provider" ? "/bookings/provider" : "/bookings/my";
       const { data } = await api.get(endpoint, { params });
-      setBookings(data.data.bookings);
+      const bookingsList = data.data.bookings;
+      setBookings(bookingsList);
+
+      if (user?.role === "user") {
+        const completed = bookingsList.filter((b: Booking) => b.status === "completed");
+        const reviewed = new Set<string>();
+        for (const booking of completed) {
+          try {
+            const { data } = await api.get(`/reviews/provider/${
+              typeof booking.providerId === "object" ? booking.providerId._id : booking.providerId
+            }`);
+            const reviews = data.data.reviews;
+            if (reviews.some((r: any) =>
+              typeof r.bookingId === "string" ? r.bookingId === booking._id : r.bookingId?._id === booking._id
+            )) {
+              reviewed.add(booking._id);
+            }
+          } catch {}
+        }
+        setReviewedBookings(reviewed);
+      }
     } catch (error) {
       console.error("Failed to load bookings");
     } finally {
@@ -142,7 +165,7 @@ export default function BookingsPage() {
                         </p>
                       )}
                       {booking.notes && (
-                        <p className="text-sm text-gray-400 mt-1 italic">"{booking.notes}"</p>
+                        <p className="text-sm text-gray-400 mt-1 italic">&quot;{booking.notes}&quot;</p>
                       )}
                     </div>
                     <div className="text-right">
@@ -172,9 +195,34 @@ export default function BookingsPage() {
                             Cancel
                           </button>
                         )}
+                        {user?.role === "user" && booking.status === "completed" && !reviewedBookings.has(booking._id) && (
+                          <button
+                            onClick={() => setShowReviewFor(showReviewFor === booking._id ? null : booking._id)}
+                            className="px-3 py-1 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600"
+                          >
+                            {showReviewFor === booking._id ? "Cancel" : "Review"}
+                          </button>
+                        )}
+                        {user?.role === "user" && booking.status === "completed" && reviewedBookings.has(booking._id) && (
+                          <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-lg">
+                            Reviewed
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
+                  {showReviewFor === booking._id && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <ReviewForm
+                        bookingId={booking._id}
+                        onReviewSubmitted={() => {
+                          setReviewedBookings(new Set([...reviewedBookings, booking._id]));
+                          setShowReviewFor(null);
+                          toast.success("Review submitted!");
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               );
             })}

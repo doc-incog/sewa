@@ -72,6 +72,18 @@ export interface Booking {
   updatedAt: string;
 }
 
+export interface Review {
+  _id: string;
+  bookingId: Booking | string;
+  userId: User | string;
+  providerId: Provider | string;
+  rating: number;
+  comment: string;
+  reply: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuthResponse {
   user: User;
   accessToken: string;

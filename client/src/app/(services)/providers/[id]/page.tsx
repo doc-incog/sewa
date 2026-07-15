@@ -6,6 +6,7 @@ import Link from "next/link";
 import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import BookingModal from "@/components/BookingModal";
+import ReviewList from "@/components/ReviewList";
 import { Provider, Service, User } from "../../../../shared/types";
 
 export default function ProviderDetailPage() {
@@ -151,6 +152,11 @@ export default function ProviderDetailPage() {
             </div>
           </div>
         )}
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Reviews</h2>
+          <ReviewList providerId={provider._id} />
+        </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Services Offered</h2>

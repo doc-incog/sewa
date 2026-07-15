@@ -25,6 +25,9 @@ export default function Navbar() {
             <Link href="/services" className="text-gray-600 hover:text-primary-600 text-sm font-medium">
               Services
             </Link>
+            <Link href="/search" className="text-gray-600 hover:text-primary-600 text-sm font-medium">
+              Search
+            </Link>
             {isAuthenticated ? (
               <>
                 <Link

@@ -6,6 +6,8 @@ import authRoutes from "./routes/auth.routes";
 import serviceRoutes from "./routes/service.routes";
 import providerRoutes from "./routes/provider.routes";
 import bookingRoutes from "./routes/booking.routes";
+import reviewRoutes from "./routes/review.routes";
+import searchRoutes from "./routes/search.routes";
 import { errorHandler } from "./middleware/error.middleware";
 
 const app = express();
@@ -22,6 +24,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/providers", providerRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/search", searchRoutes);
 
 app.use(errorHandler);
 
