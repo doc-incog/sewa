@@ -3,6 +3,9 @@ import cors from "cors";
 import { config } from "./config/env";
 import { connectDB } from "./config/db";
 import authRoutes from "./routes/auth.routes";
+import serviceRoutes from "./routes/service.routes";
+import providerRoutes from "./routes/provider.routes";
+import bookingRoutes from "./routes/booking.routes";
 import { errorHandler } from "./middleware/error.middleware";
 
 const app = express();
@@ -16,6 +19,9 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/services", serviceRoutes);
+app.use("/api/providers", providerRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 app.use(errorHandler);
 

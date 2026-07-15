@@ -27,26 +27,25 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <Link href="/bookings" className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary-200 transition-all">
             <h3 className="font-semibold text-gray-900 mb-2">My Bookings</h3>
             <p className="text-gray-500 text-sm">View and manage your bookings</p>
-            <div className="mt-4 text-2xl font-bold text-primary-600">0</div>
-          </div>
+            <span className="inline-block mt-4 text-primary-600 text-sm font-medium">View all &rarr;</span>
+          </Link>
 
-          {user?.role === "provider" && (
-            <>
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="font-semibold text-gray-900 mb-2">Pending Requests</h3>
-                <p className="text-gray-500 text-sm">New booking requests</p>
-                <div className="mt-4 text-2xl font-bold text-orange-500">0</div>
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="font-semibold text-gray-900 mb-2">Earnings</h3>
-                <p className="text-gray-500 text-sm">Total earnings this month</p>
-                <div className="mt-4 text-2xl font-bold text-green-600">Rs. 0</div>
-              </div>
-            </>
-          )}
+          <Link href="/services" className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary-200 transition-all">
+            <h3 className="font-semibold text-gray-900 mb-2">Browse Services</h3>
+            <p className="text-gray-500 text-sm">Find electricians, plumbers, and more</p>
+            <span className="inline-block mt-4 text-primary-600 text-sm font-medium">Explore &rarr;</span>
+          </Link>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 className="font-semibold text-gray-900 mb-2">Account</h3>
+            <p className="text-gray-500 text-sm">Manage your profile settings</p>
+            <div className="mt-4">
+              <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium capitalize">{user?.role}</span>
+            </div>
+          </div>
         </div>
 
         <div className="mt-8">

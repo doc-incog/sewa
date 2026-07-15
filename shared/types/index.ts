@@ -51,6 +51,27 @@ export interface Service {
   active: boolean;
 }
 
+export interface Booking {
+  _id: string;
+  userId: User | string;
+  providerId: Provider | string;
+  serviceId: Service | string;
+  date: string;
+  timeSlot: string;
+  status: "pending" | "confirmed" | "in_progress" | "completed" | "cancelled";
+  amount: number;
+  paymentId: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuthResponse {
   user: User;
   accessToken: string;

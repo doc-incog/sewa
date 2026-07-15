@@ -22,13 +22,22 @@ export default function Navbar() {
           </Link>
 
           <div className="flex items-center space-x-4">
+            <Link href="/services" className="text-gray-600 hover:text-primary-600 text-sm font-medium">
+              Services
+            </Link>
             {isAuthenticated ? (
               <>
                 <Link
-                  href="/dashboard"
+                  href={user?.role === "provider" ? "/provider" : "/dashboard"}
                   className="text-gray-600 hover:text-primary-600 text-sm font-medium"
                 >
                   Dashboard
+                </Link>
+                <Link
+                  href="/bookings"
+                  className="text-gray-600 hover:text-primary-600 text-sm font-medium"
+                >
+                  Bookings
                 </Link>
                 <span className="text-sm text-gray-500">{user?.name}</span>
                 <button
