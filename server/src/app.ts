@@ -19,17 +19,17 @@ import { errorHandler } from "./middleware/error.middleware";
 const app = express();
 const httpServer = createServer(app);
 
-const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:3000";
+const corsOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000").split(",").map((s) => s.trim());
 
 const io = new Server(httpServer, {
   cors: {
-    origin: corsOrigin,
+    origin: corsOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
-app.use(cors({ origin: corsOrigin, credentials: true }));
+app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
