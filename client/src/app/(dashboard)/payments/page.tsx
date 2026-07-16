@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
-import { Payment } from "../../../../shared/types";
+import { Payment } from "@shared/types";
 
 export default function PaymentsPage() {
   const { user } = useAuth(true);

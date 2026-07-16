@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
-import { Provider, Service } from "../../../../shared/types";
+import { Provider, Service } from "@shared/types";
 
 export default function SearchPage() {
   const [providers, setProviders] = useState<Provider[]>([]);

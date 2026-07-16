@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import { Provider } from "../../../../shared/types";
+import { Provider } from "@shared/types";
 import toast from "react-hot-toast";
 
 export default function AdminProvidersPage() {

@@ -5,7 +5,7 @@ import Link from "next/link";
 import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
-import { Chat } from "../../../../shared/types";
+import { Chat } from "@shared/types";
 
 export default function ChatListPage() {
   const { user } = useAuth(true);

@@ -7,7 +7,7 @@ import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import BookingModal from "@/components/BookingModal";
 import ReviewList from "@/components/ReviewList";
-import { Provider, Service, User } from "../../../../shared/types";
+import { Provider, Service, User } from "@shared/types";
 
 export default function ProviderDetailPage() {
   const params = useParams();

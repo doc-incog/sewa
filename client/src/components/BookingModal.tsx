@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
-import { Provider, Service } from "../../shared/types";
+import { Provider, Service } from "@shared/types";
 import toast from "react-hot-toast";
 
 interface BookingModalProps {

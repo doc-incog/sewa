@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import { config } from "./config/env";
+import { User } from "./models/User";
+import { Provider } from "./models/Provider";
 import { Service } from "./models/Service";
 
 const services = [
@@ -22,9 +24,67 @@ const seedDB = async () => {
     await mongoose.connect(config.mongodbUri);
     console.log("Connected to MongoDB");
 
+    await User.deleteMany({});
+    await Provider.deleteMany({});
     await Service.deleteMany({});
-    await Service.insertMany(services);
-    console.log(`${services.length} services seeded successfully`);
+
+    const admin = await User.create({
+      name: "Admin",
+      email: "admin@sewa.com",
+      password: "admin123",
+      role: "admin",
+      phone: "+977-9800000000",
+    });
+    console.log("Admin user created: admin@sewa.com / admin123");
+
+    const user = await User.create({
+      name: "Ram Bahadur",
+      email: "ram@test.com",
+      password: "password123",
+      role: "user",
+      phone: "+977-9800000001",
+    });
+    console.log("Test user created: ram@test.com / password123");
+
+    const providerUser = await User.create({
+      name: "Shyam Sharma",
+      email: "shyam@test.com",
+      password: "password123",
+      role: "provider",
+      phone: "+977-9800000002",
+    });
+
+    const seededServices = await Service.insertMany(services);
+    console.log(`${services.length} services seeded`);
+
+    const electrician = seededServices.find((s) => s.name === "Electrician");
+    const plumber = seededServices.find((s) => s.name === "Plumber");
+
+    await Provider.create({
+      userId: providerUser._id,
+      businessName: "Sharma Electricals",
+      description: "Professional electrical services with 10+ years of experience. Licensed and insured.",
+      services: electrician ? [electrician._id] : [],
+      avgRating: 4.5,
+      totalReviews: 12,
+      totalJobs: 45,
+      verified: true,
+      availability: [
+        { day: "mon", startTime: "09:00", endTime: "18:00", isAvailable: true },
+        { day: "tue", startTime: "09:00", endTime: "18:00", isAvailable: true },
+        { day: "wed", startTime: "09:00", endTime: "18:00", isAvailable: true },
+        { day: "thu", startTime: "09:00", endTime: "18:00", isAvailable: true },
+        { day: "fri", startTime: "09:00", endTime: "18:00", isAvailable: true },
+        { day: "sat", startTime: "10:00", endTime: "15:00", isAvailable: true },
+        { day: "sun", startTime: "00:00", endTime: "00:00", isAvailable: false },
+      ],
+    });
+    console.log("Test provider created: shyam@test.com / password123");
+
+    console.log("\n--- Seed Complete ---");
+    console.log("Admin:    admin@sewa.com / admin123");
+    console.log("User:     ram@test.com / password123");
+    console.log("Provider: shyam@test.com / password123");
 
     process.exit(0);
   } catch (error) {

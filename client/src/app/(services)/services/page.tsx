@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
-import { Service } from "../../../shared/types";
+import { Service } from "@shared/types";
 
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);

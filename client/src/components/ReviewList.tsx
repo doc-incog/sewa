@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import { Review, User } from "../../shared/types";
+import { Review, User } from "@shared/types";
 
 interface ReviewListProps {
   providerId: string;

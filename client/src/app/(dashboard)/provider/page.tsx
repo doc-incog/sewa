@@ -5,7 +5,7 @@ import Link from "next/link";
 import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
-import { Booking } from "../../../../shared/types";
+import { Booking } from "@shared/types";
 
 export default function ProviderDashboard() {
   const { user } = useAuth(true);

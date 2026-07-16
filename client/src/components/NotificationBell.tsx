@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import api from "@/lib/api";
-import { Notification } from "../../shared/types";
+import { Notification } from "@shared/types";
 import { useSocket } from "@/lib/socket";
 import { useAuthStore } from "@/store/authStore";
 

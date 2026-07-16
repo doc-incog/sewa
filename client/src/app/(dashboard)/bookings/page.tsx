@@ -5,7 +5,7 @@ import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import ReviewForm from "@/components/ReviewForm";
 import { useAuth } from "@/hooks/useAuth";
-import { Booking } from "../../../../shared/types";
+import { Booking } from "@shared/types";
 import toast from "react-hot-toast";
 
 export default function BookingsPage() {
@@ -216,7 +216,7 @@ export default function BookingsPage() {
                       <ReviewForm
                         bookingId={booking._id}
                         onReviewSubmitted={() => {
-                          setReviewedBookings(new Set([...reviewedBookings, booking._id]));
+                          setReviewedBookings(new Set([...Array.from(reviewedBookings), booking._id]));
                           setShowReviewFor(null);
                           toast.success("Review submitted!");
                         }}

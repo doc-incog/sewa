@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
-import { Service, Provider } from "../../../../shared/types";
+import { Service, Provider } from "@shared/types";
 
 export default function ServiceDetailPage() {
   const params = useParams();

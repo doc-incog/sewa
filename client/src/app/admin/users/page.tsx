@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import { User } from "../../../../shared/types";
+import { User } from "@shared/types";
 import toast from "react-hot-toast";
 
 export default function AdminUsersPage() {
