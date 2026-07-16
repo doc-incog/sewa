@@ -13,6 +13,7 @@ import searchRoutes from "./routes/search.routes";
 import paymentRoutes from "./routes/payment.routes";
 import notificationRoutes from "./routes/notification.routes";
 import chatRoutes from "./routes/chat.routes";
+import adminRoutes from "./routes/admin.routes";
 import { errorHandler } from "./middleware/error.middleware";
 
 const app = express();
@@ -42,6 +43,7 @@ app.use("/api/search", searchRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/chats", chatRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use(errorHandler);
 
