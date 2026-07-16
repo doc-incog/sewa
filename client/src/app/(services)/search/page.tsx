@@ -230,7 +230,7 @@ export default function SearchPage() {
                     </div>
 
                     <Link
-                      href={`/providers/${provider._id}`}
+                      href={`/providers?id=${provider._id}`}
                       className="block w-full text-center py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                     >
                       View Profile
@@ -249,7 +249,7 @@ export default function SearchPage() {
             {services.map((service) => (
               <Link
                 key={service._id}
-                href={`/services/${service._id}`}
+                href={`/service-detail?id=${service._id}`}
                 className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary-200 transition-all"
               >
                 <span className="text-4xl block mb-3">{service.icon}</span>

@@ -1,23 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import { Service, Provider } from "@shared/types";
 
-export default function ServiceDetailPage() {
-  const params = useParams();
+function ServiceDetailContent() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const [service, setService] = useState<Service | null>(null);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (params.id) {
-      fetchData(params.id as string);
+    if (id) {
+      fetchData(id);
+    } else {
+      setLoading(false);
     }
-  }, [params.id]);
+  }, [id]);
 
   const fetchData = async (serviceId: string) => {
     try {
@@ -136,7 +139,7 @@ export default function ServiceDetailPage() {
                   </div>
 
                   <Link
-                    href={`/providers/${provider._id}?serviceId=${service._id}`}
+                    href={`/providers?id=${provider._id}&serviceId=${service._id}`}
                     className="block w-full text-center py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                   >
                     View & Book
@@ -148,5 +151,19 @@ export default function ServiceDetailPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function ServiceDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="animate-pulse text-gray-400">Loading...</div>
+        </div>
+      }
+    >
+      <ServiceDetailContent />
+    </Suspense>
   );
 }

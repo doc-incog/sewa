@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
 import Navbar from "@/components/Navbar";
@@ -9,10 +9,9 @@ import BookingModal from "@/components/BookingModal";
 import ReviewList from "@/components/ReviewList";
 import { Provider, Service, User } from "@shared/types";
 
-export default function ProviderDetailPage() {
-  const params = useParams();
+function ProviderDetailContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const id = searchParams.get("id");
   const serviceId = searchParams.get("serviceId");
 
   const [provider, setProvider] = useState<Provider | null>(null);
@@ -21,10 +20,12 @@ export default function ProviderDetailPage() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   useEffect(() => {
-    if (params.id) {
-      fetchProvider(params.id as string);
+    if (id) {
+      fetchProvider(id);
+    } else {
+      setLoading(false);
     }
-  }, [params.id]);
+  }, [id]);
 
   useEffect(() => {
     if (provider && serviceId) {
@@ -38,9 +39,9 @@ export default function ProviderDetailPage() {
     }
   }, [provider, serviceId]);
 
-  const fetchProvider = async (id: string) => {
+  const fetchProvider = async (providerId: string) => {
     try {
-      const { data } = await api.get(`/providers/${id}`);
+      const { data } = await api.get(`/providers/${providerId}`);
       setProvider(data.data.provider);
     } catch (error) {
       console.error("Failed to load provider");
@@ -210,5 +211,19 @@ export default function ProviderDetailPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function ProviderDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="animate-pulse text-gray-400">Loading...</div>
+        </div>
+      }
+    >
+      <ProviderDetailContent />
+    </Suspense>
   );
 }

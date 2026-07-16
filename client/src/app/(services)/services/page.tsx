@@ -93,7 +93,7 @@ export default function ServicesPage() {
             {services.map((service) => (
               <Link
                 key={service._id}
-                href={`/services/${service._id}`}
+                href={`/service-detail?id=${service._id}`}
                 className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary-200 transition-all"
               >
                 <span className="text-4xl block mb-3">{service.icon}</span>
