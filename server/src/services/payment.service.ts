@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
+import crypto from "crypto";
 
 interface PaymentIntent {
   id: string;
@@ -15,11 +15,11 @@ interface PaymentConfirmation {
 }
 
 const generateTransactionId = (): string => {
-  return `txn_${uuidv4().replace(/-/g, "").substring(0, 16)}`;
+  return `txn_${crypto.randomUUID().replace(/-/g, "").substring(0, 16)}`;
 };
 
 const generatePaymentIntentId = (): string => {
-  return `pi_${uuidv4().replace(/-/g, "").substring(0, 24)}`;
+  return `pi_${crypto.randomUUID().replace(/-/g, "").substring(0, 24)}`;
 };
 
 export const createPaymentIntent = async (
@@ -31,7 +31,7 @@ export const createPaymentIntent = async (
     amount,
     currency,
     status: "requires_payment",
-    clientSecret: `${generatePaymentIntentId()}_secret_${uuidv4().substring(0, 8)}`,
+    clientSecret: `${generatePaymentIntentId()}_secret_${crypto.randomUUID().substring(0, 8)}`,
   };
 };
 
@@ -63,6 +63,6 @@ export const refundPayment = async (
 ): Promise<{ success: boolean; refundId: string }> => {
   return {
     success: true,
-    refundId: `rf_${uuidv4().replace(/-/g, "").substring(0, 16)}`,
+    refundId: `rf_${crypto.randomUUID().replace(/-/g, "").substring(0, 16)}`,
   };
 };

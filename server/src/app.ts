@@ -18,15 +18,18 @@ import { errorHandler } from "./middleware/error.middleware";
 
 const app = express();
 const httpServer = createServer(app);
+
+const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:3000";
+
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: corsOrigin,
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({ origin: corsOrigin, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -93,12 +96,17 @@ io.on("connection", (socket) => {
 });
 
 const startServer = async () => {
-  await connectDB();
+  connectDB().catch((err) => {
+    console.error("DB connection failed, continuing without DB:", err.message);
+  });
   httpServer.listen(config.port, () => {
     console.log(`Server running on port ${config.port} in ${config.nodeEnv} mode`);
   });
 };
 
-startServer();
+startServer().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
+});
 
 export { app, io };

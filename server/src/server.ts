@@ -1,6 +1,13 @@
-import { app } from "./app";
+console.log("Server starting...");
 
-process.on("unhandledRejection", (err: Error) => {
-  console.error("Unhandled Rejection:", err.message);
+import "./app";
+
+process.on("unhandledRejection", (err: any) => {
+  console.error("Unhandled Rejection:", err?.message || err);
+  process.exit(1);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err.message);
   process.exit(1);
 });
