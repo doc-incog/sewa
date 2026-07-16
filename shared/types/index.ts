@@ -101,6 +101,38 @@ export interface Payment {
   updatedAt: string;
 }
 
+export interface Notification {
+  _id: string;
+  userId: User | string;
+  type: "booking" | "payment" | "review" | "system" | "chat";
+  title: string;
+  message: string;
+  read: boolean;
+  link: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Chat {
+  _id: string;
+  participants: User[];
+  bookingId: Booking;
+  lastMessage: string;
+  lastMessageAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Message {
+  _id: string;
+  chatId: string;
+  senderId: User;
+  text: string;
+  read: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuthResponse {
   user: User;
   accessToken: string;

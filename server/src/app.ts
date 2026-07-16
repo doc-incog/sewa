@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import { config } from "./config/env";
 import { connectDB } from "./config/db";
 import authRoutes from "./routes/auth.routes";
@@ -9,9 +11,19 @@ import bookingRoutes from "./routes/booking.routes";
 import reviewRoutes from "./routes/review.routes";
 import searchRoutes from "./routes/search.routes";
 import paymentRoutes from "./routes/payment.routes";
+import notificationRoutes from "./routes/notification.routes";
+import chatRoutes from "./routes/chat.routes";
 import { errorHandler } from "./middleware/error.middleware";
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
@@ -28,16 +40,63 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/chats", chatRoutes);
 
 app.use(errorHandler);
 
+const onlineUsers = new Map<string, string>();
+
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  socket.on("user:online", (userId: string) => {
+    onlineUsers.set(userId, socket.id);
+    io.emit("users:online", Array.from(onlineUsers.keys()));
+  });
+
+  socket.on("chat:join", (chatId: string) => {
+    socket.join(chatId);
+  });
+
+  socket.on("chat:message", (data: { chatId: string; message: any }) => {
+    io.to(data.chatId).emit("chat:message", data.message);
+  });
+
+  socket.on("chat:typing", (data: { chatId: string; userId: string }) => {
+    socket.to(data.chatId).emit("chat:typing", data);
+  });
+
+  socket.on("chat:stop-typing", (data: { chatId: string; userId: string }) => {
+    socket.to(data.chatId).emit("chat:stop-typing", data);
+  });
+
+  socket.on("notification:new", (data: { userId: string; notification: any }) => {
+    const targetSocketId = onlineUsers.get(data.userId);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("notification:new", data.notification);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    for (const [userId, socketId] of onlineUsers.entries()) {
+      if (socketId === socket.id) {
+        onlineUsers.delete(userId);
+        break;
+      }
+    }
+    io.emit("users:online", Array.from(onlineUsers.keys()));
+    console.log("User disconnected:", socket.id);
+  });
+});
+
 const startServer = async () => {
   await connectDB();
-  app.listen(config.port, () => {
+  httpServer.listen(config.port, () => {
     console.log(`Server running on port ${config.port} in ${config.nodeEnv} mode`);
   });
 };
 
 startServer();
 
-export default app;
+export { app, io };

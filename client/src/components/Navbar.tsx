@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -48,6 +49,13 @@ export default function Navbar() {
                 >
                   Payments
                 </Link>
+                <Link
+                  href="/chat"
+                  className="text-gray-600 hover:text-primary-600 text-sm font-medium"
+                >
+                  Chat
+                </Link>
+                <NotificationBell />
                 <span className="text-sm text-gray-500">{user?.name}</span>
                 <button
                   onClick={handleLogout}
