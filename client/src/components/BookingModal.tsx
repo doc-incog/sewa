@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { Provider, Service } from "../../shared/types";
 import toast from "react-hot-toast";
@@ -12,6 +13,7 @@ interface BookingModalProps {
 }
 
 export default function BookingModal({ provider, service, onClose }: BookingModalProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     date: "",
     timeSlot: "09:00",
@@ -32,7 +34,7 @@ export default function BookingModal({ provider, service, onClose }: BookingModa
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post("/bookings", {
+      const { data } = await api.post("/bookings", {
         providerId: provider._id,
         serviceId: service._id,
         date: formData.date,
@@ -46,8 +48,9 @@ export default function BookingModal({ provider, service, onClose }: BookingModa
         },
         notes: formData.notes,
       });
-      toast.success("Booking created successfully!");
+      toast.success("Booking created! Proceeding to payment...");
       onClose();
+      router.push(`/payment?bookingId=${data.data.booking._id}`);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to create booking");
     } finally {

@@ -42,6 +42,12 @@ export default function Navbar() {
                 >
                   Bookings
                 </Link>
+                <Link
+                  href="/payments"
+                  className="text-gray-600 hover:text-primary-600 text-sm font-medium"
+                >
+                  Payments
+                </Link>
                 <span className="text-sm text-gray-500">{user?.name}</span>
                 <button
                   onClick={handleLogout}

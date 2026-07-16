@@ -8,6 +8,7 @@ import providerRoutes from "./routes/provider.routes";
 import bookingRoutes from "./routes/booking.routes";
 import reviewRoutes from "./routes/review.routes";
 import searchRoutes from "./routes/search.routes";
+import paymentRoutes from "./routes/payment.routes";
 import { errorHandler } from "./middleware/error.middleware";
 
 const app = express();
@@ -26,6 +27,7 @@ app.use("/api/providers", providerRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/search", searchRoutes);
+app.use("/api/payments", paymentRoutes);
 
 app.use(errorHandler);
 

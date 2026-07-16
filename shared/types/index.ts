@@ -84,6 +84,23 @@ export interface Review {
   updatedAt: string;
 }
 
+export interface Payment {
+  _id: string;
+  bookingId: Booking | string;
+  userId: User | string;
+  providerId: Provider | string;
+  amount: number;
+  currency: string;
+  method: "card" | "cash" | "wallet";
+  status: "pending" | "completed" | "failed" | "refunded";
+  transactionId: string;
+  stripePaymentIntentId: string;
+  cardLast4: string;
+  refundReason: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuthResponse {
   user: User;
   accessToken: string;
