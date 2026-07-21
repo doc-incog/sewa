@@ -2,9 +2,19 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import Navbar from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { Payment } from "@shared/types";
+import Badge from "@/components/ui/Badge";
+import EmptyState from "@/components/ui/EmptyState";
+import { CardSkeleton } from "@/components/ui/Skeleton";
+import {
+  CreditCard,
+  Wallet,
+  TrendingUp,
+  IndianRupee,
+  Calendar,
+  Hash,
+} from "lucide-react";
 
 export default function PaymentsPage() {
   const { user } = useAuth(true);
@@ -17,92 +27,130 @@ export default function PaymentsPage() {
   }, [user]);
 
   const fetchPayments = async () => {
+    if (!user) return;
     try {
-      const endpoint = user?.role === "provider" ? "/payments/provider" : "/payments/my";
+      const endpoint = user.role === "provider" ? "/payments/provider" : "/payments/my";
       const { data } = await api.get(endpoint);
-      setPayments(data.data.payments);
-      if (user?.role === "provider") {
+      setPayments(data.data.payments || []);
+      if (user.role === "provider") {
         setTotalEarnings(data.data.totalEarnings || 0);
       }
-    } catch (error) {
+    } catch {
       console.error("Failed to load payments");
     } finally {
       setLoading(false);
     }
   };
 
-  const statusColors: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-700",
-    completed: "bg-green-100 text-green-700",
-    failed: "bg-red-100 text-red-700",
-    refunded: "bg-gray-100 text-gray-700",
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
+    <div className="min-h-screen bg-warmgray-50">
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          {user?.role === "provider" ? "Earnings" : "Payment History"}
-        </h1>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-warmgray-900">
+            {user?.role === "provider" ? "Earnings" : "Payment History"}
+          </h1>
+          <p className="text-warmgray-500 mt-1">
+            {user?.role === "provider"
+              ? "Track your earnings and payment records"
+              : "View all your past payments and transactions"}
+          </p>
+        </div>
 
-        {user?.role === "provider" && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Total Earnings</h2>
-            <p className="text-4xl font-bold text-primary-600">Rs. {totalEarnings}</p>
+        {user?.role === "provider" && !loading && (
+          <div className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl shadow-warm-lg p-6 mb-8 text-white">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white/80">Total Earnings</p>
+                <p className="text-3xl font-bold flex items-center gap-0.5">
+                  <IndianRupee className="w-6 h-6" />
+                  {totalEarnings.toLocaleString()}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white p-6 rounded-xl animate-pulse">
-                <div className="h-6 bg-gray-200 rounded w-1/3 mb-3"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-              </div>
+              <CardSkeleton key={i} />
             ))}
           </div>
         ) : payments.length === 0 ? (
-          <div className="bg-white rounded-xl p-12 text-center border border-gray-100">
-            <p className="text-gray-500 text-lg">No payments yet</p>
-          </div>
+          <EmptyState
+            icon={<CreditCard className="w-7 h-7 text-warmgray-400" />}
+            title="No payments yet"
+            description={
+              user?.role === "provider"
+                ? "Payments from completed bookings will appear here."
+                : "Your payment history will appear here after your first booking."
+            }
+          />
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {payments.map((payment) => (
-                  <tr key={payment._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {new Date(payment.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 font-mono">
-                      {payment.transactionId || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 capitalize">
-                      {payment.method}
-                      {payment.cardLast4 && ` •••• ${payment.cardLast4}`}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      Rs. {payment.amount}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[payment.status]}`}>
-                        {payment.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="space-y-4">
+            {payments.map((payment) => {
+              const booking =
+                typeof payment.bookingId === "object" ? payment.bookingId : null;
+              const service =
+                booking && typeof (booking as any).serviceId === "object"
+                  ? (booking as any).serviceId
+                  : null;
+
+              return (
+                <div
+                  key={payment._id}
+                  className="bg-white rounded-2xl shadow-card border border-warmgray-100 p-5"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-warmgray-100 flex items-center justify-center shrink-0">
+                        {payment.method === "card" ? (
+                          <CreditCard className="w-5 h-5 text-warmgray-600" />
+                        ) : (
+                          <Wallet className="w-5 h-5 text-warmgray-600" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-warmgray-900 truncate">
+                          {service?.name || "Service Payment"}
+                        </p>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-warmgray-400 flex-wrap">
+                          <span className="inline-flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {new Date(payment.createdAt).toLocaleDateString()}
+                          </span>
+                          {payment.transactionId && (
+                            <span className="inline-flex items-center gap-1">
+                              <Hash className="w-3.5 h-3.5" />
+                              {payment.transactionId}
+                            </span>
+                          )}
+                          <span className="capitalize">{payment.method}</span>
+                          {payment.cardLast4 && (
+                            <span className="text-warmgray-400">
+                              ending in {payment.cardLast4}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <p className="text-lg font-bold text-warmgray-900 flex items-center justify-end gap-0.5">
+                        <IndianRupee className="w-4 h-4" />
+                        {payment.amount}
+                      </p>
+                      <div className="mt-1">
+                        <Badge status={payment.status} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </main>

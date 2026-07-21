@@ -2,53 +2,52 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import Navbar from "@/components/Navbar";
-import ReviewForm from "@/components/ReviewForm";
 import { useAuth } from "@/hooks/useAuth";
 import { Booking } from "@shared/types";
+import Badge from "@/components/ui/Badge";
+import Avatar from "@/components/ui/Avatar";
+import EmptyState from "@/components/ui/EmptyState";
+import { CardSkeleton } from "@/components/ui/Skeleton";
 import toast from "react-hot-toast";
+import {
+  CalendarCheck,
+  MapPin,
+  Clock,
+  IndianRupee,
+  XCircle,
+  CheckCircle,
+  PlayCircle,
+} from "lucide-react";
+
+const statusFilters = [
+  { key: "", label: "All" },
+  { key: "pending", label: "Pending" },
+  { key: "confirmed", label: "Confirmed" },
+  { key: "in_progress", label: "In Progress" },
+  { key: "completed", label: "Completed" },
+  { key: "cancelled", label: "Cancelled" },
+];
 
 export default function BookingsPage() {
   const { user } = useAuth(true);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>("");
-  const [reviewedBookings, setReviewedBookings] = useState<Set<string>>(new Set());
-  const [showReviewFor, setShowReviewFor] = useState<string | null>(null);
+  const [filter, setFilter] = useState("");
 
   useEffect(() => {
     fetchBookings();
-  }, [filter]);
+  }, [filter, user]);
 
   const fetchBookings = async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const params: any = {};
       if (filter) params.status = filter;
-      const endpoint = user?.role === "provider" ? "/bookings/provider" : "/bookings/my";
+      const endpoint = user.role === "provider" ? "/bookings/provider" : "/bookings/my";
       const { data } = await api.get(endpoint, { params });
-      const bookingsList = data.data.bookings;
-      setBookings(bookingsList);
-
-      if (user?.role === "user") {
-        const completed = bookingsList.filter((b: Booking) => b.status === "completed");
-        const reviewed = new Set<string>();
-        for (const booking of completed) {
-          try {
-            const { data } = await api.get(`/reviews/provider/${
-              typeof booking.providerId === "object" ? booking.providerId._id : booking.providerId
-            }`);
-            const reviews = data.data.reviews;
-            if (reviews.some((r: any) =>
-              typeof r.bookingId === "string" ? r.bookingId === booking._id : r.bookingId?._id === booking._id
-            )) {
-              reviewed.add(booking._id);
-            }
-          } catch {}
-        }
-        setReviewedBookings(reviewed);
-      }
-    } catch (error) {
+      setBookings(data.data.bookings || []);
+    } catch {
       console.error("Failed to load bookings");
     } finally {
       setLoading(false);
@@ -86,34 +85,32 @@ export default function BookingsPage() {
     }
   };
 
-  const statusColors: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-700",
-    confirmed: "bg-blue-100 text-blue-700",
-    in_progress: "bg-purple-100 text-purple-700",
-    completed: "bg-green-100 text-green-700",
-    cancelled: "bg-red-100 text-red-700",
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
+    <div className="min-h-screen bg-warmgray-50">
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          {user?.role === "provider" ? "Service Requests" : "My Bookings"}
-        </h1>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-warmgray-900">
+            {user?.role === "provider" ? "Service Requests" : "My Bookings"}
+          </h1>
+          <p className="text-warmgray-500 mt-1">
+            {user?.role === "provider"
+              ? "View and manage incoming booking requests"
+              : "Track and manage your service bookings"}
+          </p>
+        </div>
 
         <div className="flex gap-2 mb-6 flex-wrap">
-          {["", "pending", "confirmed", "in_progress", "completed", "cancelled"].map((status) => (
+          {statusFilters.map((sf) => (
             <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === status
-                  ? "bg-primary-600 text-white"
-                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+              key={sf.key}
+              onClick={() => setFilter(sf.key)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                filter === sf.key
+                  ? "bg-primary-600 text-white shadow-warm"
+                  : "bg-warmgray-100 text-warmgray-600 hover:bg-warmgray-200"
               }`}
             >
-              {status || "All"}
+              {sf.label}
             </button>
           ))}
         </div>
@@ -121,108 +118,121 @@ export default function BookingsPage() {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white p-6 rounded-xl animate-pulse">
-                <div className="h-6 bg-gray-200 rounded w-1/3 mb-3"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-              </div>
+              <CardSkeleton key={i} />
             ))}
           </div>
         ) : bookings.length === 0 ? (
-          <div className="bg-white rounded-xl p-12 text-center border border-gray-100">
-            <p className="text-gray-500 text-lg">No bookings found</p>
-          </div>
+          <EmptyState
+            icon={<CalendarCheck className="w-7 h-7 text-warmgray-400" />}
+            title="No bookings found"
+            description={
+              filter
+                ? `No ${filter.replace(/_/g, " ")} bookings to display. Try a different filter.`
+                : user?.role === "provider"
+                  ? "No service requests yet. They will appear here once clients book your services."
+                  : "You haven't made any bookings yet. Browse services to get started."
+            }
+            action={
+              !filter
+                ? { label: "Browse Services", href: "/services" }
+                : undefined
+            }
+          />
         ) : (
           <div className="space-y-4">
             {bookings.map((booking) => {
-              const provider = typeof booking.providerId === "object" ? booking.providerId : null;
-              const service = typeof booking.serviceId === "object" ? booking.serviceId : null;
-              const bookedUser = typeof booking.userId === "object" ? booking.userId : null;
+              const provider =
+                typeof booking.providerId === "object" ? booking.providerId : null;
+              const service =
+                typeof booking.serviceId === "object" ? booking.serviceId : null;
+              const bookedUser =
+                typeof booking.userId === "object" ? booking.userId : null;
+
+              const providerUser =
+                provider && typeof provider.userId === "object" ? provider.userId : null;
+
+              const displayName =
+                user?.role === "provider"
+                  ? bookedUser?.name || "Unknown Client"
+                  : provider?.businessName || (providerUser as any)?.name || "Unknown Provider";
 
               return (
-                <div key={booking._id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-gray-900">
-                          {service?.name || "Service"}
-                        </h3>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[booking.status]}`}>
-                          {booking.status}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500">
-                        {user?.role === "provider"
-                          ? `Client: ${bookedUser?.name || "N/A"}`
-                          : `Provider: ${provider?.businessName || "N/A"}`
-                        }
-                      </p>
-                      <p className="text-sm text-gray-400 mt-1">
-                        {new Date(booking.date).toLocaleDateString()} at {booking.timeSlot}
-                      </p>
-                      {booking.address && (
-                        <p className="text-sm text-gray-400 mt-1">
-                          {booking.address.street}, {booking.address.city}
+                <div
+                  key={booking._id}
+                  className="bg-white rounded-2xl shadow-card border border-warmgray-100 p-6 hover:shadow-card-hover transition-shadow"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4 min-w-0">
+                      <Avatar name={displayName} size="md" />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-semibold text-warmgray-900 truncate">
+                            {service?.name || "Service"}
+                          </h3>
+                          <Badge status={booking.status} />
+                        </div>
+                        <p className="text-sm text-warmgray-500 mt-0.5 truncate">
+                          {user?.role === "provider"
+                            ? `Client: ${bookedUser?.name || "N/A"}`
+                            : `Provider: ${displayName}`}
                         </p>
-                      )}
-                      {booking.notes && (
-                        <p className="text-sm text-gray-400 mt-1 italic">&quot;{booking.notes}&quot;</p>
-                      )}
+                        <div className="flex items-center gap-3 mt-2 text-xs text-warmgray-400 flex-wrap">
+                          <span className="inline-flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            {new Date(booking.date).toLocaleDateString()} at {booking.timeSlot}
+                          </span>
+                          {booking.address && (
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5" />
+                              {booking.address.city}
+                            </span>
+                          )}
+                        </div>
+                        {booking.notes && (
+                          <p className="text-sm text-warmgray-400 mt-2 italic">
+                            &quot;{booking.notes}&quot;
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-primary-600">Rs. {booking.amount}</p>
-                      <div className="flex gap-2 mt-2">
+
+                    <div className="text-right shrink-0">
+                      <p className="text-lg font-bold text-primary-600 flex items-center justify-end gap-0.5">
+                        <IndianRupee className="w-4 h-4" />
+                        {booking.amount}
+                      </p>
+                      <div className="flex gap-2 mt-3 justify-end flex-wrap">
                         {user?.role === "provider" && booking.status === "pending" && (
                           <button
                             onClick={() => handleAccept(booking._id)}
-                            className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-secondary-600 text-white text-xs font-medium rounded-lg hover:bg-secondary-700 transition-colors"
                           >
+                            <CheckCircle className="w-3.5 h-3.5" />
                             Accept
                           </button>
                         )}
-                        {user?.role === "provider" && (booking.status === "confirmed" || booking.status === "in_progress") && (
-                          <button
-                            onClick={() => handleComplete(booking._id)}
-                            className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
-                          >
-                            Complete
-                          </button>
-                        )}
+                        {user?.role === "provider" &&
+                          (booking.status === "confirmed" || booking.status === "in_progress") && (
+                            <button
+                              onClick={() => handleComplete(booking._id)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary-600 text-white text-xs font-medium rounded-lg hover:bg-primary-700 transition-colors"
+                            >
+                              <PlayCircle className="w-3.5 h-3.5" />
+                              Complete
+                            </button>
+                          )}
                         {(booking.status === "pending" || booking.status === "confirmed") && (
                           <button
                             onClick={() => handleCancel(booking._id)}
-                            className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-warmgray-100 text-warmgray-600 text-xs font-medium rounded-lg hover:bg-warmgray-200 transition-colors"
                           >
+                            <XCircle className="w-3.5 h-3.5" />
                             Cancel
                           </button>
-                        )}
-                        {user?.role === "user" && booking.status === "completed" && !reviewedBookings.has(booking._id) && (
-                          <button
-                            onClick={() => setShowReviewFor(showReviewFor === booking._id ? null : booking._id)}
-                            className="px-3 py-1 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600"
-                          >
-                            {showReviewFor === booking._id ? "Cancel" : "Review"}
-                          </button>
-                        )}
-                        {user?.role === "user" && booking.status === "completed" && reviewedBookings.has(booking._id) && (
-                          <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-lg">
-                            Reviewed
-                          </span>
                         )}
                       </div>
                     </div>
                   </div>
-                  {showReviewFor === booking._id && (
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <ReviewForm
-                        bookingId={booking._id}
-                        onReviewSubmitted={() => {
-                          setReviewedBookings(new Set([...Array.from(reviewedBookings), booking._id]));
-                          setShowReviewFor(null);
-                          toast.success("Review submitted!");
-                        }}
-                      />
-                    </div>
-                  )}
                 </div>
               );
             })}

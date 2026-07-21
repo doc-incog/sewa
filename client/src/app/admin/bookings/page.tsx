@@ -3,7 +3,20 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { Booking } from "@shared/types";
+import Badge from "@/components/ui/Badge";
+import EmptyState from "@/components/ui/EmptyState";
+import { TableSkeleton } from "@/components/ui/Skeleton";
 import toast from "react-hot-toast";
+import { XCircle, ChevronLeft, ChevronRight } from "lucide-react";
+
+const statusTabs = [
+  { value: "", label: "All" },
+  { value: "pending", label: "Pending" },
+  { value: "confirmed", label: "Confirmed" },
+  { value: "in_progress", label: "In Progress" },
+  { value: "completed", label: "Completed" },
+  { value: "cancelled", label: "Cancelled" },
+];
 
 export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -24,8 +37,8 @@ export default function AdminBookingsPage() {
       const { data } = await api.get("/admin/bookings", { params });
       setBookings(data.data.bookings);
       setTotalPages(data.data.totalPages);
-    } catch (error) {
-      console.error("Failed to load bookings");
+    } catch {
+      toast.error("Failed to load bookings");
     } finally {
       setLoading(false);
     }
@@ -37,113 +50,128 @@ export default function AdminBookingsPage() {
       await api.put(`/bookings/${bookingId}/cancel`);
       toast.success("Booking cancelled");
       fetchBookings();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to cancel");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to cancel");
     }
   };
 
-  const statusColors: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-700",
-    confirmed: "bg-blue-100 text-blue-700",
-    in_progress: "bg-purple-100 text-purple-700",
-    completed: "bg-green-100 text-green-700",
-    cancelled: "bg-red-100 text-red-700",
-  };
-
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Booking Management</h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-warmgray-900">Bookings</h1>
+        <p className="text-sm text-warmgray-500 mt-1">Manage all platform bookings</p>
+      </div>
 
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {["", "pending", "confirmed", "in_progress", "completed", "cancelled"].map((s) => (
+      <div className="flex gap-1.5 flex-wrap">
+        {statusTabs.map((tab) => (
           <button
-            key={s}
-            onClick={() => { setStatus(s); setPage(1); }}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              status === s
+            key={tab.value}
+            onClick={() => { setStatus(tab.value); setPage(1); }}
+            className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-colors ${
+              status === tab.value
                 ? "bg-primary-600 text-white"
-                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                : "bg-white text-warmgray-600 border border-warmgray-200 hover:bg-warmgray-50"
             }`}
           >
-            {s || "All"}
+            {tab.label}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-xl p-8 animate-pulse">
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
+        <TableSkeleton rows={6} />
+      ) : bookings.length === 0 ? (
+        <EmptyState title="No bookings" description="No bookings match the selected filter." />
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Provider</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Service</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {bookings.map((booking) => {
-                const user = typeof booking.userId === "object" ? booking.userId : null;
-                const provider = typeof booking.providerId === "object" ? booking.providerId : null;
-                const service = typeof booking.serviceId === "object" ? booking.serviceId : null;
+        <div className="bg-white rounded-2xl shadow-sm border border-warmgray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-warmgray-50">
+                <tr>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-warmgray-500 uppercase">User</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-warmgray-500 uppercase">Provider</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-warmgray-500 uppercase">Service</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-warmgray-500 uppercase">Date</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-warmgray-500 uppercase">Amount</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-warmgray-500 uppercase">Status</th>
+                  <th className="px-5 py-3 text-right text-xs font-medium text-warmgray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-warmgray-100">
+                {bookings.map((booking) => {
+                  const user = typeof booking.userId === "object" ? booking.userId : null;
+                  const provider = typeof booking.providerId === "object" ? booking.providerId : null;
+                  const service = typeof booking.serviceId === "object" ? booking.serviceId : null;
 
-                return (
-                  <tr key={booking._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900">{user?.name || "N/A"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{provider?.businessName || "N/A"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{service?.name || "N/A"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {new Date(booking.date).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">Rs. {booking.amount}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[booking.status]}`}>
-                        {booking.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      {booking.status !== "cancelled" && booking.status !== "completed" && (
-                        <button
-                          onClick={() => handleCancel(booking._id)}
-                          className="text-red-600 hover:text-red-700 text-sm font-medium"
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  return (
+                    <tr key={booking._id} className="hover:bg-warmgray-50/50 transition-colors">
+                      <td className="px-5 py-3.5 text-sm text-warmgray-900">{user?.name || "N/A"}</td>
+                      <td className="px-5 py-3.5 text-sm text-warmgray-600">{provider?.businessName || "N/A"}</td>
+                      <td className="px-5 py-3.5 text-sm text-warmgray-600">{service?.name || "N/A"}</td>
+                      <td className="px-5 py-3.5 text-sm text-warmgray-500">
+                        {new Date(booking.date).toLocaleDateString()}
+                      </td>
+                      <td className="px-5 py-3.5 text-sm font-medium text-warmgray-900">Rs. {booking.amount}</td>
+                      <td className="px-5 py-3.5">
+                        <Badge status={booking.status} />
+                      </td>
+                      <td className="px-5 py-3.5 text-right">
+                        {booking.status !== "cancelled" && booking.status !== "completed" && (
+                          <button
+                            onClick={() => handleCancel(booking._id)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-medium hover:bg-red-100 transition-colors"
+                          >
+                            <XCircle className="w-3.5 h-3.5" />
+                            Cancel
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 p-4 border-t border-gray-100">
+            <div className="flex justify-center items-center gap-1.5 p-4 border-t border-warmgray-100">
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
-                className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
+                className="w-8 h-8 rounded-lg text-sm flex items-center justify-center text-warmgray-600 hover:bg-warmgray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                Prev
+                <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="px-3 py-1 text-sm text-gray-500">Page {page} of {totalPages}</span>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                .reduce<(number | string)[]>((acc, p, i, arr) => {
+                  if (i > 0 && typeof arr[i - 1] === "number" && p - (arr[i - 1] as number) > 1) acc.push("...");
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, i) =>
+                  typeof p === "string" ? (
+                    <span key={`dots-${i}`} className="w-8 h-8 flex items-center justify-center text-warmgray-400 text-sm">...</span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+                        page === p
+                          ? "bg-primary-600 text-white"
+                          : "text-warmgray-600 hover:bg-warmgray-100"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
               <button
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
-                className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
+                className="w-8 h-8 rounded-lg text-sm flex items-center justify-center text-warmgray-600 hover:bg-warmgray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                Next
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           )}

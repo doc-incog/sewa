@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { Review, User } from "@shared/types";
+import Avatar from "./ui/Avatar";
+import StarRating from "./ui/StarRating";
+import EmptyState from "./ui/EmptyState";
+import { MessageSquare } from "lucide-react";
 
 interface ReviewListProps {
   providerId: string;
@@ -29,11 +33,14 @@ export default function ReviewList({ providerId }: ReviewListProps) {
 
   if (loading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         {[1, 2].map((i) => (
-          <div key={i} className="bg-gray-50 p-4 rounded-lg animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-            <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+          <div key={i} className="bg-warmgray-50 p-4 rounded-xl animate-pulse">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-full shimmer-bg" />
+              <div className="h-3 w-24 rounded shimmer-bg" />
+            </div>
+            <div className="h-3 w-3/4 rounded shimmer-bg" />
           </div>
         ))}
       </div>
@@ -42,41 +49,39 @@ export default function ReviewList({ providerId }: ReviewListProps) {
 
   if (reviews.length === 0) {
     return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">No reviews yet</p>
-      </div>
+      <EmptyState
+        icon={<MessageSquare className="w-7 h-7 text-warmgray-400" />}
+        title="No reviews yet"
+        description="Be the first to leave a review for this provider."
+      />
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {reviews.map((review) => {
         const user = typeof review.userId === "object" ? review.userId : null;
         return (
-          <div key={review._id} className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-sm font-bold">
-                {user?.name?.charAt(0) || "U"}
+          <div key={review._id} className="bg-warmgray-50 rounded-xl p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <Avatar name={user?.name || "U"} size="sm" />
+              <div className="flex-1 min-w-0">
+                <span className="font-medium text-warmgray-900 text-sm block truncate">
+                  {user?.name || "User"}
+                </span>
+                <StarRating rating={review.rating} size="sm" />
               </div>
-              <span className="font-medium text-gray-900 text-sm">{user?.name || "User"}</span>
-              <div className="flex gap-0.5">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <span key={star} className={`text-sm ${star <= review.rating ? "text-yellow-400" : "text-gray-200"}`}>
-                    ★
-                  </span>
-                ))}
-              </div>
-              <span className="text-xs text-gray-400 ml-auto">
+              <span className="text-xs text-warmgray-400 shrink-0">
                 {new Date(review.createdAt).toLocaleDateString()}
               </span>
             </div>
             {review.comment && (
-              <p className="text-sm text-gray-600">{review.comment}</p>
+              <p className="text-sm text-warmgray-600 leading-relaxed">{review.comment}</p>
             )}
             {review.reply && (
-              <div className="mt-3 pl-4 border-l-2 border-primary-200">
-                <p className="text-xs text-gray-500 font-medium mb-1">Provider reply:</p>
-                <p className="text-sm text-gray-600">{review.reply}</p>
+              <div className="mt-3 pl-3 border-l-2 border-primary-200 bg-white rounded-r-lg p-3">
+                <p className="text-xs text-warmgray-400 font-medium mb-0.5">Provider reply</p>
+                <p className="text-sm text-warmgray-600">{review.reply}</p>
               </div>
             )}
           </div>
