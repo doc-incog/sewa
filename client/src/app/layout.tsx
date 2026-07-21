@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
+const jakarta = localFont({
+  src: "../../public/fonts/Regular-latin.woff2",
+  weight: "100 900",
   variable: "--font-plus-jakarta",
   display: "swap",
 });
@@ -22,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={plusJakarta.variable}>
+    <html lang="en" className={jakarta.variable}>
       <body className="font-sans">
         <ErrorBoundary>
           <Toaster
