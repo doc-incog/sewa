@@ -9,17 +9,17 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          50: "#fef7f0",
-          100: "#fdecd8",
-          200: "#fad5b0",
-          300: "#f5b77e",
-          400: "#ef9049",
-          500: "#eb7526",
-          600: "#dc5b1b",
-          700: "#b64418",
-          800: "#92371b",
-          900: "#762f19",
-          950: "#40150b",
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          300: "#93c5fd",
+          400: "#60a5fa",
+          500: "#3b82f6",
+          600: "#2563eb",
+          700: "#1d4ed8",
+          800: "#1e40af",
+          900: "#1e3a8a",
+          950: "#172554",
         },
         secondary: {
           50: "#f1f8ef",
@@ -67,8 +67,8 @@ module.exports = {
       boxShadow: {
         "card": "0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04)",
         "card-hover": "0 4px 12px 0 rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04)",
-        "warm": "0 2px 8px -2px rgba(180, 120, 60, 0.15)",
-        "warm-lg": "0 8px 24px -4px rgba(180, 120, 60, 0.18)",
+        "warm": "0 2px 8px -2px rgba(37, 99, 235, 0.15)",
+        "warm-lg": "0 8px 24px -4px rgba(37, 99, 235, 0.18)",
       },
       animation: {
         "shimmer": "shimmer 2s infinite",
