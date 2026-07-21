@@ -178,7 +178,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <footer className="bg-warmgray-900 text-white">
+        <footer className="bg-gradient-to-br from-warmgray-800 to-warmgray-950 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="grid md:grid-cols-4 gap-8 mb-10">
               <div className="md:col-span-1">
