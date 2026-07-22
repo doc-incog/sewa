@@ -23,7 +23,15 @@ const corsOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000").split("
 
 const isAllowedOrigin = (origin: string | undefined): boolean => {
   if (!origin) return true;
-  return corsOrigins.some((allowed) => origin === allowed || origin.endsWith(`.${new URL(allowed).hostname}`));
+  return corsOrigins.some((allowed) => {
+    if (origin === allowed) return true;
+    try {
+      const allowedHost = new URL(allowed).hostname;
+      return origin.endsWith(`.${allowedHost}`);
+    } catch {
+      return origin === allowed;
+    }
+  });
 };
 
 const io = new Server(httpServer, {
