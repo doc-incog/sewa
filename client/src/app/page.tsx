@@ -156,7 +156,7 @@ export default function HomePage() {
 
         <section className="py-16 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-gradient-to-br from-primary-600 to-primary-800 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden">
+            <div className="bg-gradient-to-br from-[#0a0060] to-[#020045] rounded-3xl p-8 md:p-12 text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
               <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
@@ -178,7 +178,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <footer className="bg-gradient-to-br from-warmgray-800 to-warmgray-950 text-white">
+        <footer className="bg-gradient-to-br from-[#0a0060] to-[#020045] text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="grid md:grid-cols-4 gap-8 mb-10">
               <div className="md:col-span-1">
@@ -217,7 +217,7 @@ export default function HomePage() {
                 </ul>
               </div>
             </div>
-            <div className="border-t border-warmgray-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
               <p className="text-warmgray-500 text-xs">&copy; 2024 Sewa. All rights reserved.</p>
               <div className="flex gap-4 text-xs text-warmgray-500">
                 <span className="hover:text-white transition-colors cursor-pointer">Privacy Policy</span>
