@@ -21,28 +21,32 @@ const httpServer = createServer(app);
 
 const corsOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000").split(",").map((s) => s.trim());
 
+const corsOriginRegexes = corsOrigins.map((origin) => {
+  try {
+    const url = new URL(origin);
+    return new RegExp(`^https?://([\\w-]+\\.)*${url.hostname.replace(/\./g, "\\.")}$`);
+  } catch {
+    return new RegExp(`^${origin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`);
+  }
+});
+
 const isAllowedOrigin = (origin: string | undefined): boolean => {
   if (!origin) return true;
-  return corsOrigins.some((allowed) => {
-    if (origin === allowed) return true;
-    try {
-      const allowedHost = new URL(allowed).hostname;
-      return origin.endsWith(`.${allowedHost}`);
-    } catch {
-      return origin === allowed;
-    }
-  });
+  return corsOriginRegexes.some((regex) => regex.test(origin));
 };
 
 const io = new Server(httpServer, {
   cors: {
-    origin: isAllowedOrigin,
+    origin: (origin, callback) => callback(null, isAllowedOrigin(origin) ? origin : false),
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
-app.use(cors({ origin: isAllowedOrigin, credentials: true }));
+app.use(cors({
+  origin: (origin, callback) => callback(null, isAllowedOrigin(origin) ? origin : false),
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
