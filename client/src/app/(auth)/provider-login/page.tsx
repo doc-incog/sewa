@@ -24,7 +24,8 @@ export default function ProviderLoginPage() {
       toast.success("Welcome back, provider!");
       router.push("/dashboard");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Login failed");
+      console.error("Provider login error:", error);
+      toast.error(error.response?.data?.message || error.message || "Login failed");
     } finally {
       setLoading(false);
     }

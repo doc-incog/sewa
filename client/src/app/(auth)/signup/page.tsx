@@ -36,7 +36,8 @@ export default function SignupPage() {
       toast.success("Account created successfully!");
       router.push("/dashboard");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Signup failed");
+      console.error("Signup error:", error);
+      toast.error(error.response?.data?.message || error.message || "Signup failed");
     } finally {
       setLoading(false);
     }

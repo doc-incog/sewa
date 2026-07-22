@@ -21,15 +21,20 @@ const httpServer = createServer(app);
 
 const corsOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000").split(",").map((s) => s.trim());
 
+const isAllowedOrigin = (origin: string | undefined): boolean => {
+  if (!origin) return true;
+  return corsOrigins.some((allowed) => origin === allowed || origin.endsWith(`.${new URL(allowed).hostname}`));
+};
+
 const io = new Server(httpServer, {
   cors: {
-    origin: corsOrigins,
+    origin: isAllowedOrigin,
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
-app.use(cors({ origin: corsOrigins, credentials: true }));
+app.use(cors({ origin: isAllowedOrigin, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
