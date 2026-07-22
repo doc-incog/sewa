@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuthStore } from "@/store/authStore";
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:5000";
+const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "https://sewa-backend-production.up.railway.app";
 
 export const useSocket = () => {
   const { user } = useAuthStore();

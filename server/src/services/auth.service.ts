@@ -15,9 +15,9 @@ interface AuthResult {
 
 interface SignupInput {
   name: string;
-  email: string;
+  email?: string;
+  phone: string;
   password: string;
-  phone?: string;
 }
 
 interface ProviderSignupInput extends SignupInput {
@@ -26,16 +26,23 @@ interface ProviderSignupInput extends SignupInput {
 }
 
 export const signup = async (data: SignupInput): Promise<AuthResult> => {
-  const existingUser = await User.findOne({ email: data.email });
-  if (existingUser) {
-    throw new Error("Email already registered");
+  const existingPhone = await User.findOne({ phone: data.phone });
+  if (existingPhone) {
+    throw new Error("Phone number already registered");
+  }
+
+  if (data.email) {
+    const existingEmail = await User.findOne({ email: data.email });
+    if (existingEmail) {
+      throw new Error("Email already registered");
+    }
   }
 
   const user = await User.create({
     name: data.name,
-    email: data.email,
+    email: data.email || "",
     password: data.password,
-    phone: data.phone || "",
+    phone: data.phone,
     role: "user",
   });
 
@@ -53,16 +60,23 @@ export const signup = async (data: SignupInput): Promise<AuthResult> => {
 };
 
 export const providerSignup = async (data: ProviderSignupInput): Promise<AuthResult> => {
-  const existingUser = await User.findOne({ email: data.email });
-  if (existingUser) {
-    throw new Error("Email already registered");
+  const existingPhone = await User.findOne({ phone: data.phone });
+  if (existingPhone) {
+    throw new Error("Phone number already registered");
+  }
+
+  if (data.email) {
+    const existingEmail = await User.findOne({ email: data.email });
+    if (existingEmail) {
+      throw new Error("Email already registered");
+    }
   }
 
   const user = await User.create({
     name: data.name,
-    email: data.email,
+    email: data.email || "",
     password: data.password,
-    phone: data.phone || "",
+    phone: data.phone,
     role: "provider",
   });
 
@@ -85,15 +99,18 @@ export const providerSignup = async (data: ProviderSignupInput): Promise<AuthRes
   };
 };
 
-export const login = async (email: string, password: string): Promise<AuthResult> => {
-  const user = await User.findOne({ email }).select("+password");
+export const login = async (identifier: string, password: string): Promise<AuthResult> => {
+  const user = await User.findOne({
+    $or: [{ email: identifier }, { phone: identifier }],
+  }).select("+password");
+
   if (!user) {
-    throw new Error("Invalid email or password");
+    throw new Error("Invalid credentials");
   }
 
   const isPasswordValid = await user.comparePassword(password);
   if (!isPasswordValid) {
-    throw new Error("Invalid email or password");
+    throw new Error("Invalid credentials");
   }
 
   const tokenPayload: TokenPayload = {

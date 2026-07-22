@@ -6,14 +6,14 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (data: { name: string; email: string; password: string; phone?: string }) => Promise<void>;
-  providerLogin: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
+  signup: (data: { name: string; email?: string; phone: string; password: string }) => Promise<void>;
+  providerLogin: (identifier: string, password: string) => Promise<void>;
   providerSignup: (data: {
     name: string;
-    email: string;
+    email?: string;
+    phone: string;
     password: string;
-    phone?: string;
     businessName: string;
     description?: string;
   }) => Promise<void>;
@@ -26,8 +26,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
   isAuthenticated: false,
 
-  login: async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
+  login: async (identifier, password) => {
+    const { data } = await api.post("/auth/login", { identifier, password });
     localStorage.setItem("accessToken", data.data.accessToken);
     localStorage.setItem("refreshToken", data.data.refreshToken);
     set({ user: data.data.user, isAuthenticated: true });
@@ -40,8 +40,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: data.data.user, isAuthenticated: true });
   },
 
-  providerLogin: async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
+  providerLogin: async (identifier, password) => {
+    const { data } = await api.post("/auth/login", { identifier, password });
     localStorage.setItem("accessToken", data.data.accessToken);
     localStorage.setItem("refreshToken", data.data.refreshToken);
     set({ user: data.data.user, isAuthenticated: true });

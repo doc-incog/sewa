@@ -26,7 +26,13 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await signup(formData);
+      const payload: any = {
+        name: formData.name,
+        phone: formData.phone,
+        password: formData.password,
+      };
+      if (formData.email) payload.email = formData.email;
+      await signup(payload);
       toast.success("Account created successfully!");
       router.push("/dashboard");
     } catch (error: any) {
@@ -124,35 +130,35 @@ export default function SignupPage() {
                 </div>
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-warmgray-700 mb-1.5">
-                  Email
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-warmgray-400" />
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-warmgray-50 border border-warmgray-200 rounded-xl text-sm text-warmgray-900 placeholder-warmgray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
-                    placeholder="you@example.com"
-                  />
-                </div>
-              </div>
-              <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-warmgray-700 mb-1.5">
-                  Phone
+                  Phone number <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-warmgray-400" />
                   <input
                     id="phone"
                     type="tel"
+                    required
                     value={formData.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 bg-warmgray-50 border border-warmgray-200 rounded-xl text-sm text-warmgray-900 placeholder-warmgray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                     placeholder="+977 9800000000"
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-warmgray-700 mb-1.5">
+                  Email <span className="text-warmgray-400 text-xs font-normal">(optional)</span>
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-warmgray-400" />
+                  <input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-warmgray-50 border border-warmgray-200 rounded-xl text-sm text-warmgray-900 placeholder-warmgray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                    placeholder="you@example.com"
                   />
                 </div>
               </div>

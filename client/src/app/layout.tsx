@@ -32,7 +32,7 @@ export default function RootLayout({
               style: {
                 background: "#faf8f5",
                 color: "#322822",
-                border: "1px solid #e8e0d4",
+                border: "1px solid #e2e8f0",
                 borderRadius: "12px",
                 fontSize: "14px",
                 fontFamily: "var(--font-plus-jakarta)",

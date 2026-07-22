@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
 import toast from "react-hot-toast";
-import { Home, Mail, Lock, ArrowRight } from "lucide-react";
+import { Home, Mail, Lock, ArrowRight, Eye, EyeOff, Phone } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [loginMode, setLoginMode] = useState<"email" | "phone">("email");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuthStore();
   const router = useRouter();
 
@@ -18,7 +20,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
+      await login(identifier, password);
       toast.success("Login successful!");
       router.push("/dashboard");
     } catch (error: any) {
@@ -32,7 +34,6 @@ export default function LoginPage() {
     <div className="min-h-screen flex">
       {/* Left branded panel */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-primary-500 via-primary-600 to-primary-800 overflow-hidden">
-        {/* SVG pattern overlay */}
         <div className="absolute inset-0 opacity-[0.07]">
           <svg className="w-full h-full" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -45,7 +46,6 @@ export default function LoginPage() {
           </svg>
         </div>
 
-        {/* Decorative blobs */}
         <div className="absolute -top-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
         <div className="absolute bottom-32 -right-16 w-48 h-48 bg-accent-400/20 rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-primary-300/20 rounded-full blur-2xl" />
@@ -98,23 +98,56 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-4">
+              {/* Email / Phone toggle */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-warmgray-700 mb-1.5">
-                  Email
+                <div className="flex bg-warmgray-100 rounded-xl p-1 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => { setLoginMode("email"); setIdentifier(""); }}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      loginMode === "email"
+                        ? "bg-white text-warmgray-900 shadow-sm"
+                        : "text-warmgray-500 hover:text-warmgray-700"
+                    }`}
+                  >
+                    <Mail className="w-4 h-4" />
+                    Email
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setLoginMode("phone"); setIdentifier(""); }}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      loginMode === "phone"
+                        ? "bg-white text-warmgray-900 shadow-sm"
+                        : "text-warmgray-500 hover:text-warmgray-700"
+                    }`}
+                  >
+                    <Phone className="w-4 h-4" />
+                    Phone
+                  </button>
+                </div>
+
+                <label htmlFor="identifier" className="block text-sm font-medium text-warmgray-700 mb-1.5">
+                  {loginMode === "email" ? "Email" : "Phone number"}
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-warmgray-400" />
+                  {loginMode === "email" ? (
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-warmgray-400" />
+                  ) : (
+                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-warmgray-400" />
+                  )}
                   <input
-                    id="email"
-                    type="email"
+                    id="identifier"
+                    type={loginMode === "email" ? "email" : "tel"}
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 bg-warmgray-50 border border-warmgray-200 rounded-xl text-sm text-warmgray-900 placeholder-warmgray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
-                    placeholder="you@example.com"
+                    placeholder={loginMode === "email" ? "you@example.com" : "+977 9800000000"}
                   />
                 </div>
               </div>
+
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-warmgray-700 mb-1.5">
                   Password
@@ -123,13 +156,16 @@ export default function LoginPage() {
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-warmgray-400" />
                   <input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-warmgray-50 border border-warmgray-200 rounded-xl text-sm text-warmgray-900 placeholder-warmgray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                    className="w-full pl-10 pr-10 py-2.5 bg-warmgray-50 border border-warmgray-200 rounded-xl text-sm text-warmgray-900 placeholder-warmgray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                     placeholder="Enter your password"
                   />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-warmgray-400 hover:text-warmgray-600 transition-colors">
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
             </div>
